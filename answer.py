@@ -123,3 +123,43 @@ def clean_name(name):
 names = data[data['Sex'] == 'male']['Name'].map(clean_name)
 name_counts = names.value_counts()
 print("Ответ№9:",name_counts.head(1).index.values[0])
+
+# 10. Какие самые популярные мужское и женские имена людей, старше 15 лет на корабле?
+
+def clean_name(name):
+    import re
+    # Первое слово до запятой - фамилия
+    s = re.search('^[^,]+, (.*)', name)
+    if s:
+        name = s.group(1)
+
+    # Если есть скобки - то имя пассажира в них
+    s = re.search('\(([^)]+)\)', name)
+    if s:
+        name = s.group(1)
+ 
+    # Удаляем обращения
+    name = re.sub('(Master\. |Mr\. |Mrs\. |Miss\. )', '', name)
+
+    # Берем первое оставшееся слово и удаляем кавычки
+    name = name.split(' ')[0].replace('"', '')
+
+    return name
+
+def get_name(dataset,sex,age):
+    if (dataset is None):
+        return ''
+    names = dataset[data['Age'] > age]['Name'].map(clean_name)
+    if (sex=='male' or sex=='female'):
+        names = dataset[data['Sex'] == sex][data['Age'] > age]['Name'].map(clean_name)
+    name_counts = names.value_counts()
+    if(name_counts.count()>0):
+        return name_counts.head(1).index.values[0]
+    return ''
+
+
+print('\n')
+#Самое популярное мужское имя старше 15 лет
+print('Мужское: '+ get_name(data,'male',15))
+#Самое популярное женское имя старше 15 лет
+print('Женское: '+ get_name(data,'female',15))
